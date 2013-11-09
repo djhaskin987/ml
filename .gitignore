@@ -38,3 +38,4 @@ build/
 *.blg
 *.log
 *.pdf
+*.syntex.gz

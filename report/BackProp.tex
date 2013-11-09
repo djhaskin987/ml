@@ -36,8 +36,9 @@ far away from acheiving a minima with respect to MSE.
 \subsection{Choosing A Learning Rate}
 
 As per the project specifications, I looked at several different learning rates
-to determine the best learning rate for the iris dataset. My findings are
-summarized in figures \ref{fig:learning_rate_accuracy} and
+to determine the best learning rate for the iris dataset. I tried various
+learning rates using a single layer of 8 nodes. My findings are summarized in
+    figures \ref{fig:learning_rate_accuracy} and
 \ref{fig:learning_rate_epochs}.
 \begin{figure}[!ht]
     \begin{center}
@@ -66,6 +67,33 @@ a log scale.
 Looking at both graphs, it seems that $0.05$  seems like a good choice. It gets
 very high accuracy, yet still has a manageable number of epochs before the
 stopping criteria is satisfied.
-\subsection
+\subsection{Node Count}
+I graphed accuracy against number of nodes in a single hidden layer. I also
+graphed number of epochs needed to train the model before stopping
+criteria was reached. I graphed data points, for 1, 2, 4, 8, 16, and 32 nodes.
 
+Looking at figures \ref{fig:node_count_accuracy} and
+\ref{fig:node_count_epochs}, we can see that both the accuracy and number
+of epochs needed start to be fairly constant after $8$ nodes. This may be
+because that is $2n$, or twice the number of inputs (there are 4 inputs in the
+Iris dataset). This makes sense because in a linear space, that is the number
+of hyperplanes needed to create a hyper cube (i.e., a hypercube in
+$n$-dimentional space has $2n$ sides).
+
+\begin{figure}[!ht]
+    \begin{center}
+        \includegraphics[width=0.75\textwidth]{Iris-NodeCount-Accuracy}
+    \end{center}
+    \caption{Accuracy graphed as a functions of the number of nodes used in a
+    single hidden layer.}
+  \label{fig:node_count_accuracy}
+\end{figure}
+\begin{figure}[!ht]
+    \begin{center}
+        \includegraphics[width=0.75\textwidth]{Iris-NodeCount-Epochs}
+    \end{center}
+    \caption{Number of Epochs needed to train graphed as a function of the
+    number of nodes used in a single hidden layer.}
+  \label{fig:node_count_epochs}
+\end{figure}
 \end{document}
