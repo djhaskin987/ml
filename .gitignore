@@ -11,3 +11,11 @@
 *.lai
 *.la
 *.a
+
+# Scons
+.sconsign.dblite
+
+# Editors
+.*.swp
+.*#
+*~
