@@ -88,7 +88,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                               LearningRate, MomentumTerm);
     }
 
-    features.shuffleRows(rand, &labels);
 
     for (int j = 0; j < labels.cols(); j++)
     {
@@ -100,6 +99,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         double MSE = 0.0;
         while ( WindowCount < 10 )
         {
+            features.shuffleRows(rand, &labels);
             double OldMSE = MSE;
             double predict = 0.0;
             int off = 0;
