@@ -99,23 +99,19 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         int WindowCount = 0;
         double WindowImprovement = 0.0;
         double MSE = 0.0;
-        double ImprovementImprovement = 0.0;
-        double ImprovementImprovementEWMA = 0.0;
-        double ImprovementEWMA = 0.0;
-
         while ( WindowCount < 10 )
         {
             double OldMSE = MSE;
-            double OldImprovement = WindowImprovement;
             double predict = 0.0;
             int off = 0;
+            OldMSE = MSE;
             MSE = 0.0;
             for (int i = 0; i < features.rows(); i++)
             {
                 trons[j]->Update(features[i], labels[i][j]);
                 predict = trons[j]->Predict(features[i]);
                 MSE += trons[j]->MSE();
-                if (predict != labels[i][j])
+                if (round(predict) != round(labels[i][j]))
                 {
                     off++;
                 }
@@ -137,7 +133,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                     TestMSE += trons[j]->TestMSE((*testSet)[i],
                             (*testLabels)[i][j]);
 
-                    if (testPredict != (*testLabels)[i][j])
+                    if (round(testPredict) != round((*testLabels)[i][j]))
                     {
                         testOff++;
                     }
@@ -145,11 +141,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 TestMSE /= (double)testSet->rows();
                 testMisclassification = ((double)testOff) / 
                 ((double)testSet->rows());
-            }
-
-            if (epoch == 0) 
-            {
-                OldMSE = MSE;
             }
 
             double OldWindowImprovement = WindowImprovement;
@@ -167,18 +158,8 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             {
                 OldWindowImprovement = WindowImprovement;
             }
-           
-            ImprovementImprovement = WindowImprovement - 
-                                        OldWindowImprovement;
 
-            ImprovementEWMA = .9 * ImprovementEWMA + 
-                .1 * WindowImprovement;
-            ImprovementImprovementEWMA = .9 * ImprovementImprovementEWMA +
-                .1 * ImprovementImprovement;
-            cout << "IImprovement: " << ImprovementImprovementEWMA 
-                 << endl;
-            if ( WindowImprovement < .01 &&
-                    ImprovementImprovement < 0.0001)
+            if ( WindowImprovement < .01)
             {
                 WindowCount++;
             }
@@ -192,7 +173,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             std::cout << "\tMisclass: " << Misclassification 
                       << "\tTest MSE: " << TestMSE 
                       << "\tTest Misclass: " << testMisclassification
-                << "\tEWMA: " << ImprovementEWMA 
                 << std::endl;
             epoch++;
         }

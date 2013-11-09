@@ -26,5 +26,8 @@
 *.txt
 *.csv
 
+# IDE files
+nbproject/
+
 # Build files
 build/

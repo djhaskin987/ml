@@ -4,7 +4,7 @@
 // ----------------------------------------------------------------
 
 #include "error.h"
-#include <cassert>
+#include <cstdlib>
 #include <exception>
 #include <signal.h>
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-
+using namespace std;
 using std::exception;
 using std::string;
 using std::cerr;
@@ -33,7 +33,7 @@ MLException g_exception;
 void ThrowError(string s1)
 {
     std::cerr << s1 << std::endl;
-    assert(0);
+    exit(1);
 }
 
 

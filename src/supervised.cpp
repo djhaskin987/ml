@@ -130,7 +130,8 @@ public:
         normalize = false;
         nominal_to_cat = false;
         discretize = false;
-        learning_rate = 0.1;
+        learning_rate = 0.3;
+        momentum_term = 0.2;
         is_nominal = false;
         inverse_square_weight = false;
         reduction = 0.0;
@@ -141,28 +142,13 @@ public:
             {
                 arff = argv[++i];
             }
+            else if (strcmp(argv[i], "--nominal") == 0)
+            {
+                is_nominal = true;
+            }
             else if ( strcmp ( argv[i], "-L" ) == 0 )
             {
                 learner = argv[++i];
-                if (learner == "neuralnet")
-                {
-                    if (strcmp(argv[++i], "--nominal") == 0)
-                    {
-                        is_nominal = true;
-                        i++;
-                    }
-                    int size = atoi(argv[i]);
-                    if (size < 0)
-                    {
-                        ThrowError("number of neural net levels must not be negative.");
-                    }
-
-                    levels.reserve(size);
-                    for (int j = 0; j < size; j++)
-                    {
-                        levels.push_back(atoi(argv[++i]));
-                    }
-                }
             }
             else if ( strcmp ( argv[i], "-E" ) == 0 )
             {
@@ -191,19 +177,23 @@ public:
                 k = atoi (argv [++i] );
             else if ( strcmp ( argv[i], "-r" ) == 0 )
             {
-                reduction = 
+                reduction =
                     ExtractRealValue(argv[++i], std::string("Reduction"));
 
             }
             else if ( strcmp ( argv[i], "-l" ) == 0 )
             {
-                learning_rate = 
+                learning_rate =
                     ExtractRealValue(argv[++i], std::string("Learning Rate"));
             }
             else if ( strcmp ( argv[i], "-m" ) == 0 )
             {
-                momentum_term = 
+                momentum_term =
                     ExtractRealValue(argv[++i], std::string("Momentum Term"));
+            }
+            else if ( strcmp ( argv[i], "--add-layer" ) == 0 )
+            {
+                levels.push_back(atoi(argv[++i]));
             }
             else
                 ThrowError ( "Invalid paramater: ", argv[i] );
@@ -223,8 +213,8 @@ public:
                  << "-C                        \"Nominal to Categorical\"ize the data (optional)" << endl
                  << "-D                        Discretize the data (optional)" << endl
                  << "-R <seed>                 Specifty the random seed to use (optional)" << endl
-                 << "-l <learningRate>         For perceptron and neuralnet, Specify the learning rate (defaults to .1)" << endl
-                 << "-m <momentumTerm>         For perceptron and neuralnet, Specify the momentum term (defaults to .9)" << endl
+                 << "-l <learningRate>         For perceptron and neuralnet, Specify the learning rate (defaults to .3)" << endl
+                 << "-m <momentumTerm>         For perceptron and neuralnet, Specify the momentum term (defaults to .2)" << endl
                  << "-k <k>                    For KNN, Specify the 'k' value" << endl
                  << "-i                        For KNN, Specify that inverse-square weighting" << endl
                  << "-r <val>                  For KNN, Specify the reduction ratio (defaults to 0 - no reduction)" << endl
@@ -245,8 +235,8 @@ public:
                  << endl
                  << "If 'neuralnet' is used for <learningAlgorithm>, the following" << endl
                  << "  arguments are required: " << endl
-                 << "    [--nominal] <num-levels> <level-size> [<level-size> ...]" << endl
-                 << endl;
+                 << "    [--nominal] {--add-layer <level-size> ...}" << endl
+                 << endl << flush;
             ThrowError ( "Missing parameters" );
         }
     }
@@ -272,7 +262,7 @@ public:
     {
         return normalize;
     }
-    
+
     bool getInverseSquareWeight()
     {
         return inverse_square_weight;
@@ -371,7 +361,7 @@ void doit(ArgParser& parser)
     SupervisedLearner* learner = getLearner(model, r,
         parser.getLearningRate(), parser.getMomentumTerm(),
         parser.getIsNominal(), parser.getLevels(),
-        parser.getK(), parser.getInverseSquareWeight(), 
+        parser.getK(), parser.getInverseSquareWeight(),
         parser.getReductionRate());
 
     // Wrap the learner with the specified filters
