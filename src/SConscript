@@ -1,0 +1,20 @@
+﻿debug = Environment()
+debug.Append(CCFLAGS = ['-O0','-ggdb','-std=c++11','-Werror'])
+debug.Append(CFLAGS = ['-std=c++11','-Werror'])
+debug.Append(LINKFLAGS = ['-std=c++11','-Werror'])
+commonSourceIncludes = ['-Isrc/Util','-Isrc/Toolkit']
+Export('debug','commonSourceIncludes')
+SConscript('Toolkit/SConscript', variant_dir='lib/Toolkit', duplicate=0, exports={'MODE':'debug'})
+SConscript('Util/SConscript', variant_dir='lib/Util', duplicate=0, exports={'MODE':'debug'})
+SConscript('DecisionTree/SConscript', variant_dir='lib/DecisionTree', duplicate=0, exports={'MODE':'debug'})
+SConscript('Neuron/SConscript', variant_dir='lib/Neuron', duplicate=0, exports={'MODE':'debug'})
+SConscript('KNN/SConscript', variant_dir='lib/KNN', duplicate=0, exports={'MODE':'debug'})
+
+libraryPath = '/usr/lib'
+sources = ['supervised.cpp']
+libs=['decisiontree','neuron','util','toolkit','knn']
+localLibPaths=['lib/DecisionTree','lib/Neuron','lib/Util','lib/Toolkit','lib/KNN']
+localLibPaths.append(libraryPath)
+ml = debug.Program('ml', sources, LIBPATH=localLibPaths, LIBS=libs, \
+    CPPFLAGS=['-Isrc/Toolkit', '-Isrc/Util', '-Isrc/Neuron', '-Isrc/DecisionTree', '-Isrc/KNN'])
+Default(ml)

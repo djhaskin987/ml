@@ -1,0 +1,5 @@
+﻿Import('debug', 'commonSourceIncludes')
+sources=['BackPropNeuronBank.cpp','BackPropNeuronBankFactory.cpp','Perceptron.cpp','PerceptronLearner.cpp','PerceptronNeuronBank.cpp','PerceptronNeuronBankFactory.cpp','SigmoidFire.cpp','ThresholdFire.cpp']
+debug.StaticLibrary('neuron', \
+    sources, \
+    CPPFLAGS = commonSourceIncludes)

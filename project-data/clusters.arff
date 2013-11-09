@@ -1,0 +1,20 @@
+% Dan Haskin
+% CS 478
+% clusters relation
+% linearly-seperable example.
+
+@relation diamond
+@attribute x numeric
+@attribute y numeric
+@attribute fit_the_bill {false,true}
+
+@data
+
+0,-1,false
+.25,-.75,false
+-.25,-.75,false
+0,-.5,false
+.75,1,true
+1,.75,true
+.75,.5,true
+.5,.75,true

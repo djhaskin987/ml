@@ -1,0 +1,5 @@
+﻿Import('debug','commonSourceIncludes')
+sources=['DecisionTreeLearner.cpp','DecisionTree.cpp','DTNode.cpp']
+library = debug.StaticLibrary('decisiontree', \
+    sources, \
+    CPPFLAGS = commonSourceIncludes)

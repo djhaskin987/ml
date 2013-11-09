@@ -1,0 +1,5 @@
+﻿Import('debug')
+sources=['error.cpp','filter.cpp','learner.cpp','matrix.cpp','rand.cpp']
+debug.StaticLibrary('toolkit', \
+    sources, \
+    CPPFLAGS = ['-Isrc/Util'])

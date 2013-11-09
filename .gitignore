@@ -25,3 +25,6 @@
 *.pdf
 *.txt
 *.csv
+
+# Build files
+build/

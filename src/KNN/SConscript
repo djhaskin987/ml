@@ -1,0 +1,4 @@
+﻿Import('debug','commonSourceIncludes')
+sources=['InstanceBasedSupervisedLearner.cpp','NearestNeighborSet.cpp']
+debug.StaticLibrary('knn', sources, \
+    CPPFLAGS = commonSourceIncludes)

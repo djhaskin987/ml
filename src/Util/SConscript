@@ -1,0 +1,5 @@
+﻿Import('debug')
+sources=['RowListUtil.cpp']
+debug.StaticLibrary('util', \
+    sources, \
+    CPPFLAGS = ['-Isrc/Toolkit'])

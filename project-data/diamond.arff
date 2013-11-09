@@ -1,0 +1,20 @@
+% Dan Haskin
+% CS 478
+% Diamond relation
+% Non-linearly-seperable example.
+
+@relation diamond
+@attribute x numeric
+@attribute y numeric
+@attribute fit_the_bill {false,true}
+
+@data
+
+-1,-1,false
+-1,0,true
+-1,1,false
+0,1,true
+1,1,false
+1,0,true
+1,-1,false
+0,-1,true
