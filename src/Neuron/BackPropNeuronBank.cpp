@@ -94,7 +94,7 @@ double BackPropNeuronBank::TestMSE(const std::vector<double> & inputs,
         for (BankRowIterator OTIter = OutputTrons.begin();
                 OTIter != OutputTrons.end(); OTIter++)
         {
-            double MyTarget = 
+            double MyTarget =
                 (target == (double)(OTIter-OutputTrons.begin())) ?
                               1.0 : 0.0;
             double offset = MyTarget - *OIter;
@@ -106,7 +106,7 @@ double BackPropNeuronBank::TestMSE(const std::vector<double> & inputs,
     return error_;
 }
 
-void BackPropNeuronBank::Update(const std::vector<double> & inputs, 
+void BackPropNeuronBank::Update(const std::vector<double> & inputs,
         double target)
 {
     if (ErrorCount >= window)

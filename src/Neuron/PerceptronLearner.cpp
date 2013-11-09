@@ -69,6 +69,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         Matrix *testSet, Matrix *testLabels)
 {
     free();
+
     int NumFeatures = features.cols();
     int NumOutputs = labels.cols();
 
