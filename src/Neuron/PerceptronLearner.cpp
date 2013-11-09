@@ -158,7 +158,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 OldWindowImprovement = WindowImprovement;
             }
 
-            if ( WindowImprovement < .01)
+            if ( WindowImprovement < 0.1 )
             {
                 WindowCount++;
             }
