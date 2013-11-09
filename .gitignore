@@ -19,3 +19,9 @@
 .*.swp
 .*#
 *~
+
+# Research files
+*.ods
+*.pdf
+*.txt
+*.csv
