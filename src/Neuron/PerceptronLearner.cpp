@@ -3,6 +3,7 @@
 #include "PerceptronNeuronBank.h"
 #include "PerceptronLearner.h"
 #include <sstream>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
@@ -91,13 +92,10 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
 
     for (int j = 0; j < labels.cols(); j++)
     {
-        deque<double> window;
-
         int epoch = 0;
-        int WindowCount = 0;
-        double WindowImprovement = 0.0;
         double MSE = 0.0;
-        while ( WindowCount < 10 )
+        double Improvement = 0.0;
+        do
         {
             features.shuffleRows(rand, &labels);
             double OldMSE = MSE;
@@ -115,10 +113,11 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                     off++;
                 }
             }
-            MSE /= (double)features.rows();
+            MSE = MSE / ((double)features.rows());
 
             double Misclassification = ((double)off) /
                 ((double)features.rows());
+
 
             double testMisclassification = 0.0;
             int testOff = 0;
@@ -142,30 +141,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 ((double)testSet->rows());
             }
 
-            double OldWindowImprovement = WindowImprovement;
-
-            window.push_back(OldMSE - MSE);
-
-            WindowImprovement += window.back();
-
-            if (window.size() > 10)
-            {
-                WindowImprovement -= window.front();
-                window.pop_front();
-            }
-            if (epoch <= 1)
-            {
-                OldWindowImprovement = WindowImprovement;
-            }
-
-            if ( WindowImprovement < 0.1 )
-            {
-                WindowCount++;
-            }
-            else
-            {
-                WindowCount = 0;
-            }
+            Improvement = abs(OldMSE - MSE);
 
             std::cout << "MSE: " << MSE;
             std::cout << "\tEpoch: " << epoch ;
@@ -174,7 +150,8 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                       << "\tTest Misclass: " << testMisclassification
                 << std::endl;
             epoch++;
-        }
+        } while (Improvement > 0.001 * LearningRate);
+        std::cout << "Number of total epochs: " << epoch << std::endl;
     }
     trained = true;
 }
