@@ -64,7 +64,7 @@ void PerceptronLearner::free()
     trained = false;
 }
 
-void PerceptronLearner::train(Matrix& features, Matrix& labels, 
+void PerceptronLearner::train(Matrix& features, Matrix& labels,
         Matrix *testSet, Matrix *testLabels)
 {
     free();
@@ -74,7 +74,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
     if (features.rows() != labels.rows())
     {
         stringstream ss;
-        ss << "Features and Labels must be equinumerous" << " at " 
+        ss << "Features and Labels must be equinumerous" << " at "
            << __LINE__ << " in " << __FILE__;
         throw std::runtime_error(ss.str());
     }
@@ -87,7 +87,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         trons[i] = (*factory)(NumFeatures, valueCount, &rand,
                               LearningRate, MomentumTerm);
     }
-    
 
     features.shuffleRows(rand, &labels);
 
@@ -117,10 +116,10 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 }
             }
             MSE /= (double)features.rows();
-            
-            double Misclassification = ((double)off) / 
+
+            double Misclassification = ((double)off) /
                 ((double)features.rows());
-            
+
             double testMisclassification = 0.0;
             int testOff = 0;
             double testPredict = 0.0;
@@ -139,16 +138,16 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                     }
                 }
                 TestMSE /= (double)testSet->rows();
-                testMisclassification = ((double)testOff) / 
+                testMisclassification = ((double)testOff) /
                 ((double)testSet->rows());
             }
 
             double OldWindowImprovement = WindowImprovement;
 
             window.push_back(OldMSE - MSE);
-           
+
             WindowImprovement += window.back();
-           
+
             if (window.size() > 10)
             {
                 WindowImprovement -= window.front();
@@ -170,8 +169,8 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
 
             std::cout << "MSE: " << MSE;
             std::cout << "\tEpoch: " << epoch ;
-            std::cout << "\tMisclass: " << Misclassification 
-                      << "\tTest MSE: " << TestMSE 
+            std::cout << "\tMisclass: " << Misclassification
+                      << "\tTest MSE: " << TestMSE
                       << "\tTest Misclass: " << testMisclassification
                 << std::endl;
             epoch++;
