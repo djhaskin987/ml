@@ -31,3 +31,10 @@ nbproject/
 
 # Build files
 build/
+
+# TEX
+*.aux
+*.bbl
+*.blg
+*.log
+*.pdf
