@@ -65,13 +65,51 @@ void PerceptronLearner::free()
     trained = false;
 }
 
+shared_ptr<vector<double> >
+    PerceptronLearner::getInputs(Matrix & matrix, int row)
+{
+    shared_ptr<vector<double> > inputs(new vector<double>());
+    for (int col = 0; col < matrix.cols(); col++)
+    {
+        if (matrix.valueCount(row) <= 0)
+        {
+            double added = matrix[row][col];
+            inputs->push_back(matrix[row][col]);
+        }
+        else
+        {
+            int val = round(matrix[row][col]);
+            for (int valIndex = 0;
+                    valIndex < matrix.valueCount(col);
+                    valIndex++)
+            {
+                double added = val == valIndex ? 1.0 : 0.0;
+                inputs->push_back(added);
+            }
+        }
+    }
+    return inputs;
+}
+
+
 void PerceptronLearner::train(Matrix& features, Matrix& labels,
         Matrix *testSet, Matrix *testLabels)
 {
     free();
 
-    int NumFeatures = features.cols();
-    int NumOutputs = labels.cols();
+    int NumInputs = 0;
+    for (int col = 0; col < features.cols(); col++)
+    {
+        if (features.valueCount(col) > 0)
+        {
+            NumInputs += features.valueCount(col);
+        }
+        else
+        {
+            NumInputs++;
+        }
+    }
+    int NumClasses = labels.cols();
 
     if (features.rows() != labels.rows())
     {
@@ -81,15 +119,14 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         throw std::runtime_error(ss.str());
     }
 
-    trons = std::vector<NeuronBank*>(NumOutputs);
-    for (int i = 0; i < NumOutputs; i++)
+    trons = std::vector<NeuronBank*>(NumClasses);
+    for (int i = 0; i < NumClasses; i++)
     {
         int valueCount = labels.valueCount(i) > 0 ? labels.valueCount(i) :
             1;
-        trons[i] = (*factory)(NumFeatures, valueCount, &rand,
+        trons[i] = (*factory)(NumInputs, valueCount, &rand,
                               LearningRate, MomentumTerm);
     }
-
 
     for (int j = 0; j < labels.cols(); j++)
     {
@@ -106,8 +143,14 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             MSE = 0.0;
             for (int i = 0; i < features.rows(); i++)
             {
-                trons[j]->Update(features[i], labels[i][j]);
-                predict = trons[j]->Predict(features[i]);
+                shared_ptr<vector<double> >
+                    inputs = getInputs(features, i);
+                if (features.valueCount(i) <= 0)
+                {
+                    trons[j]->Update(*inputs, labels[i][j]);
+                }
+                else
+                predict = trons[j]->Predict(*inputs);
                 MSE += trons[j]->MSE();
                 if (round(predict) != round(labels[i][j]))
                 {
@@ -128,8 +171,10 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             {
                 for (int i = 0; i < testSet->rows(); i++)
                 {
-                    testPredict = trons[j]->Predict((*testSet)[i]);
-                    TestMSE += trons[j]->TestMSE((*testSet)[i],
+                    shared_ptr<vector<double> >
+                        testInputs = getInputs(*testSet, i);
+                    testPredict = trons[j]->Predict(*testInputs);
+                    TestMSE += trons[j]->TestMSE(*testInputs,
                             (*testLabels)[i][j]);
 
                     if (round(testPredict) != round((*testLabels)[i][j]))

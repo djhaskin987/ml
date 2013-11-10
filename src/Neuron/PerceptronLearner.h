@@ -3,6 +3,7 @@
 
 #include "learner.h"
 #include <vector>
+#include <memory>
 #include "NeuronBank.h"
 #include "NeuronBankFactory.h"
 #include "rand.h"
@@ -19,6 +20,8 @@ private:
     bool trained;
     void copy(const PerceptronLearner & other);
     void free();
+    std::shared_ptr<std::vector<double> >
+        getInputs(Matrix & matrix, int row);
 
 public:
     PerceptronLearner();
