@@ -15,8 +15,8 @@ private:
     std::vector<NeuronBank*> trons;
     double LearningRate;
     double MomentumTerm;
-    Matrix * _features;
-    Matrix * _labels;
+    std::shared_ptr<Matrix> _features;
+    std::shared_ptr<Matrix> _labels;
     int NumInputs;
     Rand rand;
     NeuronBankFactory * factory;
@@ -24,8 +24,7 @@ private:
     void copy(const PerceptronLearner & other);
     void free();
     std::shared_ptr<std::vector<double> >
-        getInputs(Matrix & matrix, const std::vector<double> & row,
-        int NumInputs);
+        getInputs(const std::vector<double> & row);
 
 public:
     PerceptronLearner();

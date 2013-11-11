@@ -14,7 +14,7 @@ using std::shared_ptr;
 
 
 // virtual
-void Filter::train(Matrix& features, Matrix& labels, Matrix *testSet, 
+void Filter::train(Matrix& features, Matrix& labels, Matrix *testSet,
         Matrix * testLabels)
 {
     trainFilter(features, labels);
@@ -137,6 +137,7 @@ void Normalize::unfilterLabels(vector<double>& before, vector<double>& after)
 Matrix* Normalize::filterFeatures(Matrix& features)
 {
     Matrix* pOut = new Matrix(features);
+
     for(size_t i = 0; i < features.rows(); i++)
     {
         vector<double> row = filterFeatures(features[i]);

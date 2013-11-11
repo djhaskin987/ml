@@ -19,7 +19,7 @@ PerceptronLearner::PerceptronLearner() : trons(), rand()
 PerceptronLearner::PerceptronLearner(const Rand & r, double learn,
                                      double momentum, NeuronBankFactory * fact) : trons(), rand(r),
     LearningRate(learn), MomentumTerm(momentum), factory(fact), trained(false),
-        _features(NULL), _labels(NULL), NumInputs(0)
+        _features(), _labels(), NumInputs(0)
 
 {
 }
@@ -69,40 +69,41 @@ void PerceptronLearner::free()
     }
     trons.clear();
     trained = false;
-    _features = NULL;
-    _labels = NULL;
+    _features.reset();
+    _labels.reset();
     NumInputs = 0;
 }
 
 shared_ptr<vector<double> >
-    PerceptronLearner::getInputs(Matrix & matrix, const std::vector<double> &row,
-        int NumInputs)
+    PerceptronLearner::getInputs(const std::vector<double> &row)
 {
     shared_ptr<vector<double> > inputs(new vector<double>());
-
-    for (int col = 0; col < matrix.cols(); col++)
+    for (int col = 0; col < _features->cols(); col++)
     {
-        if (matrix.valueCount(col) > 0)
+        if (_features->valueCount(col) > 0)
         {
-            int val = round(row[col]);
+            int val = row[col];
             for (int valIndex = 0;
-                    valIndex < matrix.valueCount(col);
+                    valIndex < _features->valueCount(col);
                     valIndex++)
             {
                 double added = val == valIndex ? 1.0 : 0.0;
                 inputs->push_back(added);
+                cout << "Input size: " << inputs->size() << endl;
             }
         }
         else
         {
             double added = row[col];
             inputs->push_back(added);
+            cout << "Input size: " << inputs->size() << endl;
         }
+
     }
-    if (inputs->size() < NumInputs)
+    if (inputs->size() != NumInputs)
     {
         stringstream ss;
-        ss << "Inputs too small!" << endl
+        ss << "Inputs not right!" << endl
            << "Inputs size: " << inputs->size() << endl
            << "  NumInputs: " << NumInputs << endl
            << "  at " << __LINE__ << " in " << __FILE__ << endl;
@@ -115,8 +116,8 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         Matrix *testSet, Matrix *testLabels)
 {
     free();
-    _features = &features;
-    _labels = &labels;
+    _features.reset(new Matrix(features));
+    _labels.reset(new Matrix(labels));
     for (int col = 0; col < features.cols(); col++)
     {
         if (features.valueCount(col) > 0)
@@ -170,7 +171,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             for (int i = 0; i < features.rows(); i++)
             {
                 shared_ptr<vector<double> >
-                    inputs = getInputs(features, features[i], NumInputs);
+                    inputs = getInputs(features[i]);
                 if (features.valueCount(i) <= 0)
                 {
                     trons[j]->Update(*inputs, labels[i][j]);
@@ -178,7 +179,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 else
                 predict = trons[j]->Predict(*inputs);
                 MSE += trons[j]->MSE();
-                if (round(predict) != round(labels[i][j]))
+                if (predict != labels[i][j])
                 {
                     off++;
                 }
@@ -197,12 +198,12 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 for (int i = 0; i < testSet->rows(); i++)
                 {
                     shared_ptr<vector<double> >
-                        testInputs = getInputs(*testSet, (*testSet)[i], NumInputs);
+                        testInputs = getInputs((*testSet)[i]);
                     testPredict = trons[j]->Predict(*testInputs);
                     TestMSE += trons[j]->TestMSE(*testInputs,
                             (*testLabels)[i][j]);
 
-                    if (round(testPredict) != round((*testLabels)[i][j]))
+                    if (testPredict != (*testLabels)[i][j])
                     {
                         testOff++;
                     }
@@ -242,7 +243,10 @@ void PerceptronLearner::predict(const std::vector<double> & features,
         throw std::runtime_error("This learner was not trained for this number of outputs.");
     }
     shared_ptr<vector<double> > inputs =
-        getInputs(*_features,features, NumInputs);
+        getInputs(features);
+    cout << "Input size in predict: " << inputs->size() << endl;
+    cout << "NumInputs: " << NumInputs << endl;
+    cout << "Features cols: " << _features->cols() << endl;
     for (int i = 0; i < labels.size(); i++)
     {
         labels[i] = trons[i]->Predict(*inputs);
