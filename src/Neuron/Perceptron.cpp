@@ -64,10 +64,11 @@ double Perceptron::Vote(const std::vector<double> & inputs) const
 {
     if (inputs.size() != weights.size())
     {
-        assert(0);
         stringstream ss;
-        ss << "inputs not the same size as weights!" << " at "
-           << __LINE__ << " in " << __FILE__;
+        ss << "inputs not the same size as weights!" << endl
+           << "  input size: " << inputs.size() << endl
+           << "  weights size: " << weights.size() << endl
+           << "  at "  << __LINE__ << " in " << __FILE__ << endl;
         throw ArgumentException(ss.str());
     }
 

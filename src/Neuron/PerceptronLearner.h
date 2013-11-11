@@ -15,13 +15,17 @@ private:
     std::vector<NeuronBank*> trons;
     double LearningRate;
     double MomentumTerm;
+    Matrix * _features;
+    Matrix * _labels;
+    int NumInputs;
     Rand rand;
     NeuronBankFactory * factory;
     bool trained;
     void copy(const PerceptronLearner & other);
     void free();
     std::shared_ptr<std::vector<double> >
-        getInputs(Matrix & matrix, int row);
+        getInputs(Matrix & matrix, const std::vector<double> & row,
+        int NumInputs);
 
 public:
     PerceptronLearner();

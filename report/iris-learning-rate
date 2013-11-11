@@ -6,11 +6,6 @@ do
     for j in 1 2 3 4 5
     do
         echo "Learning rate: ${rate}"
-        build/ml -L neuralnet -l ${rate} -m 0.0 -E random .7 -A project-data/iris.arff --add-layer 8 |
-                awk '
-/total epoch/ { print $0 }
-/Accuracy.*training set/ { print $0 }
-/Accuracy.*test set/ { print $0 }
-/Set accuracy/ { print $0 }'
+        build/ml -L neuralnet -l ${rate} -m 0.0 -E random .7 -A project-data/iris.arff --add-layer 8
     done
 done

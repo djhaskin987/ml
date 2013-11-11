@@ -18,13 +18,16 @@ PerceptronLearner::PerceptronLearner() : trons(), rand()
 
 PerceptronLearner::PerceptronLearner(const Rand & r, double learn,
                                      double momentum, NeuronBankFactory * fact) : trons(), rand(r),
-    LearningRate(learn), MomentumTerm(momentum), factory(fact), trained(false)
+    LearningRate(learn), MomentumTerm(momentum), factory(fact), trained(false),
+        _features(NULL), _labels(NULL), NumInputs(0)
+
 {
 }
 
 PerceptronLearner::PerceptronLearner(const PerceptronLearner & other) :
     trons(other.trons), rand(other.rand), LearningRate(other.LearningRate),
-    MomentumTerm(other.MomentumTerm), factory(other.factory), trained(other.trained)
+    MomentumTerm(other.MomentumTerm), factory(other.factory), trained(other.trained),
+    _features(other._features), _labels(other._labels), NumInputs(other.NumInputs)
 {
     // copy(other);
 }
@@ -53,6 +56,9 @@ void PerceptronLearner::copy(const PerceptronLearner & other)
     MomentumTerm = other.MomentumTerm;
     factory = other.factory;
     trained = other.trained;
+    _features = other._features;
+    _labels = other._labels;
+    NumInputs = other.NumInputs;
 }
 
 void PerceptronLearner::free()
@@ -63,22 +69,22 @@ void PerceptronLearner::free()
     }
     trons.clear();
     trained = false;
+    _features = NULL;
+    _labels = NULL;
+    NumInputs = 0;
 }
 
 shared_ptr<vector<double> >
-    PerceptronLearner::getInputs(Matrix & matrix, int row)
+    PerceptronLearner::getInputs(Matrix & matrix, const std::vector<double> &row,
+        int NumInputs)
 {
     shared_ptr<vector<double> > inputs(new vector<double>());
+
     for (int col = 0; col < matrix.cols(); col++)
     {
-        if (matrix.valueCount(row) <= 0)
+        if (matrix.valueCount(col) > 0)
         {
-            double added = matrix[row][col];
-            inputs->push_back(matrix[row][col]);
-        }
-        else
-        {
-            int val = round(matrix[row][col]);
+            int val = round(row[col]);
             for (int valIndex = 0;
                     valIndex < matrix.valueCount(col);
                     valIndex++)
@@ -87,17 +93,30 @@ shared_ptr<vector<double> >
                 inputs->push_back(added);
             }
         }
+        else
+        {
+            double added = row[col];
+            inputs->push_back(added);
+        }
+    }
+    if (inputs->size() < NumInputs)
+    {
+        stringstream ss;
+        ss << "Inputs too small!" << endl
+           << "Inputs size: " << inputs->size() << endl
+           << "  NumInputs: " << NumInputs << endl
+           << "  at " << __LINE__ << " in " << __FILE__ << endl;
+        throw logic_error(ss.str());
     }
     return inputs;
 }
-
 
 void PerceptronLearner::train(Matrix& features, Matrix& labels,
         Matrix *testSet, Matrix *testLabels)
 {
     free();
-
-    int NumInputs = 0;
+    _features = &features;
+    _labels = &labels;
     for (int col = 0; col < features.cols(); col++)
     {
         if (features.valueCount(col) > 0)
@@ -108,6 +127,11 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
         {
             NumInputs++;
         }
+    }
+    cout << "NumInputs: " << NumInputs << endl;
+    if (NumInputs < features.cols())
+    {
+        throw logic_error("NumInputs is too small!");
     }
     int NumClasses = labels.cols();
 
@@ -122,11 +146,13 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
     trons = std::vector<NeuronBank*>(NumClasses);
     for (int i = 0; i < NumClasses; i++)
     {
-        int valueCount = labels.valueCount(i) > 0 ? labels.valueCount(i) :
+        int NumOutputs = labels.valueCount(i) > 0 ? labels.valueCount(i) :
             1;
-        trons[i] = (*factory)(NumInputs, valueCount, &rand,
+        trons[i] = (*factory)(NumInputs, NumOutputs, &rand,
                               LearningRate, MomentumTerm);
     }
+    cout << "\"Epoch\",\"MSE\",\"Misclass\",\"Test MSE\",\"Test Misclass\""
+        << endl;
 
     for (int j = 0; j < labels.cols(); j++)
     {
@@ -144,7 +170,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             for (int i = 0; i < features.rows(); i++)
             {
                 shared_ptr<vector<double> >
-                    inputs = getInputs(features, i);
+                    inputs = getInputs(features, features[i], NumInputs);
                 if (features.valueCount(i) <= 0)
                 {
                     trons[j]->Update(*inputs, labels[i][j]);
@@ -162,7 +188,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             double Misclassification = ((double)off) /
                 ((double)features.rows());
 
-
             double testMisclassification = 0.0;
             int testOff = 0;
             double testPredict = 0.0;
@@ -172,7 +197,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 for (int i = 0; i < testSet->rows(); i++)
                 {
                     shared_ptr<vector<double> >
-                        testInputs = getInputs(*testSet, i);
+                        testInputs = getInputs(*testSet, (*testSet)[i], NumInputs);
                     testPredict = trons[j]->Predict(*testInputs);
                     TestMSE += trons[j]->TestMSE(*testInputs,
                             (*testLabels)[i][j]);
@@ -188,13 +213,11 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             }
 
             Improvement = abs(OldMSE - MSE);
-
-            std::cout << "MSE: " << MSE;
-            std::cout << "\tEpoch: " << epoch ;
-            std::cout << "\tMisclass: " << Misclassification
-                      << "\tTest MSE: " << TestMSE
-                      << "\tTest Misclass: " << testMisclassification
-                << std::endl;
+            cout << '"' << epoch << "\",\""
+                 << MSE << "\",\""
+                 << Misclassification << "\",\""
+                 << TestMSE << "\",\""
+                 << testMisclassification << '"' << endl;
             epoch++;
         } while (Improvement > 0.001 * LearningRate);
         std::cout << "Number of total epochs: " << epoch << std::endl;
@@ -218,9 +241,10 @@ void PerceptronLearner::predict(const std::vector<double> & features,
     {
         throw std::runtime_error("This learner was not trained for this number of outputs.");
     }
-
+    shared_ptr<vector<double> > inputs =
+        getInputs(*_features,features, NumInputs);
     for (int i = 0; i < labels.size(); i++)
     {
-        labels[i] = trons[i]->Predict(features);
+        labels[i] = trons[i]->Predict(*inputs);
     }
 }
