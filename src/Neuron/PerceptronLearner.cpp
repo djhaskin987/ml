@@ -89,14 +89,12 @@ shared_ptr<vector<double> >
             {
                 double added = val == valIndex ? 1.0 : 0.0;
                 inputs->push_back(added);
-                cout << "Input size: " << inputs->size() << endl;
             }
         }
         else
         {
             double added = row[col];
             inputs->push_back(added);
-            cout << "Input size: " << inputs->size() << endl;
         }
 
     }
@@ -129,7 +127,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             NumInputs++;
         }
     }
-    cout << "NumInputs: " << NumInputs << endl;
     if (NumInputs < features.cols())
     {
         throw logic_error("NumInputs is too small!");
@@ -244,9 +241,6 @@ void PerceptronLearner::predict(const std::vector<double> & features,
     }
     shared_ptr<vector<double> > inputs =
         getInputs(features);
-    cout << "Input size in predict: " << inputs->size() << endl;
-    cout << "NumInputs: " << NumInputs << endl;
-    cout << "Features cols: " << _features->cols() << endl;
     for (int i = 0; i < labels.size(); i++)
     {
         labels[i] = trons[i]->Predict(*inputs);
