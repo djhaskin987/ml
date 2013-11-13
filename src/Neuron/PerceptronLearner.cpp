@@ -91,11 +91,13 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
     }
 
 
+    int epochCap = 50 * ((int)round(1.0 / LearningRate));
     for (int j = 0; j < labels.cols(); j++)
     {
         int epoch = 0;
         double MSE = 0.0;
         double Improvement = 0.0;
+        double ImprovementEWMA = 1.0;
         do
         {
             features.shuffleRows(rand, &labels);
@@ -142,7 +144,8 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 ((double)testSet->rows());
             }
 
-            Improvement = abs(OldMSE - MSE);
+            Improvement = abs(MSE - OldMSE);
+            ImprovementEWMA = 0.8 * ImprovementEWMA + 0.2 * Improvement;
 
             std::cout << "MSE: " << MSE;
             std::cout << "\tEpoch: " << epoch ;
@@ -151,7 +154,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                       << "\tTest Misclass: " << testMisclassification
                 << std::endl;
             epoch++;
-        } while (Improvement > 0.001 * LearningRate);
+        } while (ImprovementEWMA > 0.001 * LearningRate && epoch < epochCap);
         std::cout << "Number of total epochs: " << epoch << std::endl;
     }
     trained = true;
