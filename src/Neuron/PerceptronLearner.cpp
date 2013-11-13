@@ -94,20 +94,20 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
     cout << "\"Epoch\",\"MSE\",\"Misclass\",\"Test MSE\",\"Test Misclass\""
         << endl;
 
-    int epochCap = 50 * ((int)round(1.0 / LearningRate));
+    int epochCap = 2500;
+    double learningCap = 0.01 * LearningRate;
     for (int j = 0; j < labels.cols(); j++)
     {
         int epoch = 0;
         double MSE = 0.0;
-        double Improvement = 0.0;
-        double ImprovementEWMA = 1.0;
+        double Misclassification = 1.0;
+        int bestSoFarCounter = 0;
+        double bestSoFar = 1.0;
         do
         {
             features.shuffleRows(rand, &labels);
-            double OldMSE = MSE;
             double predict = 0.0;
             int off = 0;
-            OldMSE = MSE;
             MSE = 0.0;
             for (int i = 0; i < features.rows(); i++)
             {
@@ -121,8 +121,17 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             }
             MSE = MSE / ((double)features.rows());
 
-            double Misclassification = ((double)off) /
+            Misclassification = ((double)off) /
                 ((double)features.rows());
+            if (Misclassification < bestSoFar)
+            {
+                bestSoFar = Misclassification;
+                bestSoFarCounter = 0;
+            }
+            else
+            {
+                bestSoFarCounter++;
+            }
 
 
             double testMisclassification = 0.0;
@@ -147,8 +156,6 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                 ((double)testSet->rows());
             }
 
-            Improvement = abs(MSE - OldMSE);
-            ImprovementEWMA = 0.8 * ImprovementEWMA + 0.2 * Improvement;
 
             cout << '"' << epoch << "\",\""
                  << MSE << "\",\""
@@ -156,7 +163,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
                  << TestMSE << "\",\""
                  << testMisclassification << '"' << endl;
             epoch++;
-        } while (ImprovementEWMA > 0.001 * LearningRate && epoch < epochCap);
+        } while (bestSoFarCounter < 50 && epoch < epochCap);
         std::cout << "Number of total epochs: " << epoch << std::endl;
     }
     trained = true;
