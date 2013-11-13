@@ -91,6 +91,9 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
     }
 
 
+    cout << "\"Epoch\",\"MSE\",\"Misclass\",\"Test MSE\",\"Test Misclass\""
+        << endl;
+
     int epochCap = 50 * ((int)round(1.0 / LearningRate));
     for (int j = 0; j < labels.cols(); j++)
     {
@@ -147,12 +150,11 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             Improvement = abs(MSE - OldMSE);
             ImprovementEWMA = 0.8 * ImprovementEWMA + 0.2 * Improvement;
 
-            std::cout << "MSE: " << MSE;
-            std::cout << "\tEpoch: " << epoch ;
-            std::cout << "\tMisclass: " << Misclassification
-                      << "\tTest MSE: " << TestMSE
-                      << "\tTest Misclass: " << testMisclassification
-                << std::endl;
+            cout << '"' << epoch << "\",\""
+                 << MSE << "\",\""
+                 << Misclassification << "\",\""
+                 << TestMSE << "\",\""
+                 << testMisclassification << '"' << endl;
             epoch++;
         } while (ImprovementEWMA > 0.001 * LearningRate && epoch < epochCap);
         std::cout << "Number of total epochs: " << epoch << std::endl;
