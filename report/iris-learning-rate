@@ -1,9 +1,0 @@
-#!/bin/sh
-for i in 0.1 0.05 0.01 0.005
-do
-    echo "\"Learning Rate\",\"${i}\""
-    build/ml -L neuralnet -A project-data/iris.arff -E random 0.7 --add-layer 8 -l ${i} -m 0.0 | sed \
-        -e '/^[^"]/d' \
-        -e '/^["][[:digit:]]*[1-9]"/d' \
-        -e '/^[[:blank:]]*$/d'
-done

@@ -91,7 +91,7 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
     }
 
 
-    cout << "\"Epoch\",\"MSE\",\"Misclass\",\"Test MSE\",\"Test Misclass\""
+    cout << "\"Epoch\",\"MSE\",\"Misclass\",\"Accuracy\",\"Test MSE\",\"Test Misclass\",\"Test Accuracy\""
         << endl;
 
     int epochCap = 2500;
@@ -160,8 +160,10 @@ void PerceptronLearner::train(Matrix& features, Matrix& labels,
             cout << '"' << epoch << "\",\""
                  << MSE << "\",\""
                  << Misclassification << "\",\""
+                 << (1.0 - Misclassification) << "\",\""
                  << TestMSE << "\",\""
-                 << testMisclassification << '"' << endl;
+                 << testMisclassification << "\",\""
+                 << (1.0 - testMisclassification) << '"' << endl;
             epoch++;
         } while (bestSoFarCounter < 50 && epoch < epochCap);
         std::cout << "Number of total epochs: " << epoch << std::endl;

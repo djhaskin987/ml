@@ -1,8 +1,8 @@
 #!/bin/sh
-for i in 1 2 3 4
+for i in 2 4 6 8 10
 do
     echo "\"Hidden Nodes\",\"${i}\""
-    build/ml -L neuralnet -A project-data/iris.arff -E random 0.7 --add-layer ${i} -l 0.05 -m 0.0 | sed \
+    build/ml -L neuralnet -A project-data/vowel.arff -E random 0.75 --add-layer ${i} -l 0.01 -m 0.0 | sed \
         -e '/^[^"]/d' \
         -e '/^["][[:digit:]]*[1-9]"/d' \
         -e '/^[[:blank:]]*$/d'

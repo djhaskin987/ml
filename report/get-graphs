@@ -1,0 +1,139 @@
+#!/bin/sh
+
+for dataset in vowel iris
+do
+    if [ "${dataset}" = "vowel" ]
+    then
+        split=0.75
+    else
+        split=0.7
+    fi
+
+    csv=${dataset}-learningrate.csv
+    if [ ! -s ${csv} ]
+    then
+        rm -rf ${csv}
+        # get learning rate graphs
+        for i in 0.1 0.05 0.01 0.005
+        do
+            build/ml -L neuralnet \
+                     -A project-data/${dataset}.arff \
+                     -E random ${split} \
+                     --add-layer 8 -l ${i} -m 0.0 |
+                sed \
+                    -e '/^[^"]/d' \
+                    -e '/^["][^[:digit:]]/d' \
+                    -e '/^["][[:digit:]]*[1-9]"/d' \
+                    -e '/^[[:blank:]]*$/d' >> ${csv}
+           echo >> ${csv}
+           echo >> ${csv}
+        done
+    fi
+    png="${dataset}-learningrate-training.png"
+    if [ ! -s "${png}" ]
+    then
+        gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:4 with linespoints title "0.1", '${csv}' index 1 using 1:4 with linespoints title "0.05", '${csv}' index 2 using 1:4 with linespoints title "0.01", '${csv}' index 3 using 1:4 with linespoints title "0.005"
+HERE
+    fi
+    png="${dataset}-learningrate-testing.png"
+    if [ ! -s "${png}" ]
+    then
+        gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:7 with linespoints title "0.1", '${csv}' index 1 using 1:7 with linespoints title "0.05", '${csv}' index 2 using 1:7 with linespoints title "0.01", '${csv}' index 3 using 1:7 with linespoints title "0.005"
+HERE
+    fi
+done
+
+csv="iris-hiddennodes.csv"
+if [ ! -s ${csv} ]
+then
+    rm -rf ${csv}
+    # get learning rate graphs
+    for i in 1 2 3 4
+    do
+        build/ml -L neuralnet \
+                 -A project-data/${dataset}.arff \
+                 -E random 0.7 \
+                 --add-layer ${i} -l 0.05  -m 0.0 |
+            sed \
+                -e '/^[^"]/d' \
+                -e '/^["][^[:digit:]]/d' \
+                -e '/^["][[:digit:]]*[1-9]"/d' \
+                -e '/^[[:blank:]]*$/d' >> ${csv}
+       echo >> ${csv}
+       echo >> ${csv}
+    done
+fi
+png="iris-hiddennodes-training.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:4 with linespoints title "1 node", '${csv}' index 1 using 1:4 with linespoints title "2 nodes", '${csv}' index 2 using 1:4 with linespoints title "3 nodes", '${csv}' index 3 using 1:4 with linespoints title "4 nodes"
+HERE
+fi
+png="iris-hiddennodes-testing.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:7 with linespoints title "1 node", '${csv}' index 1 using 1:7 with linespoints title "2 nodes", '${csv}' index 2 using 1:7 with linespoints title "3 nodes", '${csv}' index 3 using 1:7 with linespoints title "4 nodes"
+HERE
+fi
+csv="vowel-hiddennodes.csv"
+if [ ! -s ${csv} ]
+then
+    rm -rf ${csv}
+    # get learning rate graphs
+    for i in 6 8 10 12
+    do
+        build/ml -L neuralnet \
+                 -A project-data/${dataset}.arff \
+                 -E random 0.75 \
+                 --add-layer ${i} -l 0.01  -m 0.0 |
+            sed \
+                -e '/^[^"]/d' \
+                -e '/^["][^[:digit:]]/d' \
+                -e '/^["][[:digit:]]*[1-9]"/d' \
+                -e '/^[[:blank:]]*$/d' >> ${csv}
+       echo >> ${csv}
+       echo >> ${csv}
+    done
+fi
+png="vowel-hiddennodes-training.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:4 with linespoints title "6 nodes", '${csv}' index 1 using 1:4 with linespoints title "8 nodes", '${csv}' index 2 using 1:4 with linespoints title "10 nodes", '${csv}' index 3 using 1:4 with linespoints title "12 nodes"
+HERE
+fi
+png="vowel-hiddennodes-testing.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:7 with linespoints title "6 nodes", '${csv}' index 1 using 1:7 with linespoints title "8 nodes", '${csv}' index 2 using 1:7 with linespoints title "10 nodes", '${csv}' index 3 using 1:7 with linespoints title "12 nodes"
+HERE
+fi
