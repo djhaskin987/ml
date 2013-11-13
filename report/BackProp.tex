@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,placeins}
 \usepackage[pdftex]{graphicx}
 \pagestyle{plain}
 \title{Back Propogation Project}
@@ -25,75 +25,109 @@ the following functionality:
 \item Optional momentum term via the \texttt{-m} option.
 \end{enumerate}
 \subsection{Stopping Criteria}
-As to stopping criteria, I decided to look at the mean squared error (MSE) at
-each epoch, or specifically its improvement. I kept track of the MSE on the
-current epoch and also the MSE for the previous epoch is below threshold (chosen
-as $0.001$), multiplied by the learning rate, I decided to stop. I included the
-learning rate in the decision, reasoning that if the learning rate was small,
-improvement over an epoch may be small enough to be under threshhold, yet very
-far away from acheiving a minima with respect to MSE.
-\section{Iris Problem}
-\subsection{Choosing A Learning Rate}
+ As to stopping criteria, I had a real problem. I tried all sorts of things
+ with little success. At length and at the professor's advice I created
+ a stopping criterion with two clauses:
+ \begin{enumerate}
+     \item Keep track of the best rate of accuracy so far. If this rate of
+         accuracy is not improved within 50 epochs, stop.
+     \item If nothing else, stop after 2500 epochs.
+ \end{enumerate}
+ This stopping criterion worked much better. It turns out that even looking
+ for the smallest improvement within 50 epochs, the second hard-stop clause
+ was never needed in my experiements. The algorithm alwasy stopped at a
+ relatively appropriate time.
+ \section{Choosing a Learning Rate}
+ \subsection{Iris Dataset}
 
 As per the project specifications, I looked at several different learning rates
 to determine the best learning rate for the iris dataset. I tried various
 learning rates using a single layer of 8 nodes. My findings are summarized in
-    figures \ref{fig:learning_rate_accuracy} and
-\ref{fig:learning_rate_epochs}.
+figures \ref{fig:iris_learningrate_training} and
+\ref{fig:iris_learningrate_testing}.
 \begin{figure}[!ht]
     \begin{center}
-        \includegraphics[width=0.75\textwidth]{Iris-LearningRate-Accuracy}
+        \includegraphics[width=0.65\textwidth]{iris-learningrate-training}
     \end{center}
-    \caption{Accuracy as a function of learning rate.}
-  \label{fig:learning_rate_accuracy}
+    \caption{Training set acuracy over time with differnt learning rates using the iris dataset.}
+  \label{fig:iris_learningrate_training}
 \end{figure}
 
 \begin{figure}[!ht]
     \begin{center}
-        \includegraphics[width=0.75\textwidth]{Iris-LearningRate-Epochs}
+        \includegraphics[width=0.65\textwidth]{iris-learningrate-testing}
     \end{center}
-    \caption{Number of epochs required to train as a function of learning rate.
-    Note the log scale of the x-axis.}
-  \label{fig:learning_rate_epochs}
+    \caption{Testing set accuracy over time with different learning rates using the iris dataset.}
+  \label{fig:iris_learningrate_testing}
 \end{figure}
-
-Looking at these graphs, it is clear that there is an accuracy-epoch trade-off.
-When the learning rate is very small, the accuracy never seems to get worse,
-though it seems there is diminishing return on accuracy as one decreases the
-learning rate. However, for small learning rates, the number of epochs required
-to train a dataset explodes as the learning rate increases, even when shown on
-a log scale.
-
-Looking at both graphs, it seems that $0.05$  seems like a good choice. It gets
-very high accuracy, yet still has a manageable number of epochs before the
-stopping criteria is satisfied.
-\subsection{Node Count}
-I graphed accuracy against number of nodes in a single hidden layer. I also
-graphed number of epochs needed to train the model before stopping
-criteria was reached. I graphed data points, for 1, 2, 4, 8, 16, and 32 nodes.
-
-Looking at figures \ref{fig:node_count_accuracy} and
-\ref{fig:node_count_epochs}, we can see that both the accuracy and number
-of epochs needed start to be fairly constant after $8$ nodes. This may be
-because that is $2n$, or twice the number of inputs (there are 4 inputs in the
-Iris dataset). This makes sense because in a linear space, that is the number
-of hyperplanes needed to create a hyper cube (i.e., a hypercube in
-$n$-dimentional space has $2n$ sides).
+It seems the best learning rate for iris is $0.05$.
+\subsection{Vowel Dataset}
+Doing the same experiment with the vowel dataset, using a single layer of 8
+hidden nodes, we find that the best learning rate for vowel is $0.01$. See
+figures \ref{fig:vowel_learningrate_training} and \ref{fig:vowel_learningrate_testing}.
+\begin{figure}[!ht]
+    \begin{center}
+        \includegraphics[width=0.65\textwidth]{vowel-learningrate-training}
+    \end{center}
+    \caption{Training set acuracy over time with differnt learning rates using the vowel dataset.}
+  \label{fig:vowel_learningrate_training}
+\end{figure}
 
 \begin{figure}[!ht]
     \begin{center}
-        \includegraphics[width=0.75\textwidth]{Iris-NodeCount-Accuracy}
+        \includegraphics[width=0.65\textwidth]{vowel-learningrate-testing}
     \end{center}
-    \caption{Accuracy graphed as a functions of the number of nodes used in a
-    single hidden layer.}
-  \label{fig:node_count_accuracy}
+    \caption{Testing set accuracy over time with different learning rates using the vowel dataset.}
+  \label{fig:vowel_learningrate_testing}
 \end{figure}
+
+\section{Hidden Nodes}
+\subsection{Iris Dataset}
+Running various experiments with the iris dataset, using a learning rate of
+$0.05$, it seems that with each node,
+accuracy improves greatly. It seems that only $3$ nodes are needed to produce
+optimal results. See figures
+\ref{fig:iris_hiddennodes_training} and \ref{fig:iris_hiddennodes_testing}.
 \begin{figure}[!ht]
     \begin{center}
-        \includegraphics[width=0.75\textwidth]{Iris-NodeCount-Epochs}
+        \includegraphics[width=0.65\textwidth]{iris-hiddennodes-training}
     \end{center}
-    \caption{Number of Epochs needed to train graphed as a function of the
-    number of nodes used in a single hidden layer.}
-  \label{fig:node_count_epochs}
+    \caption{Training set acuracy over time with differnt sizes of hidden layers using the iris dataset.}
+  \label{fig:iris_hiddennodes_training}
+\end{figure}
+
+\begin{figure}[!ht]
+    \begin{center}
+        \includegraphics[width=0.65\textwidth]{iris-hiddennodes-testing}
+    \end{center}
+    \caption{Testing set accuracy over time with different sizes of hidden layers using the iris dataset.}
+  \label{fig:iris_hiddennodes_testing}
+\end{figure}
+\subsection{Vowel Dataset}
+Repeating the experiments with the vowel dataset, with the learning rate as
+$0.01$, we find that it takes more nodes to get the same results. Incrementing
+the size of the middle layer node-by-node, The accuracy started to plateu
+around $10$ nodes.
+
+\begin{figure}[!ht]
+    \centering
+    \begin{minipage}[b]{0.45\linewidth}
+        \includegraphics[width=1.0\textwidth]{iris-hiddennodes-training}
+        \caption{Training set acuracy over time with differnt sizes of hidden layers using the iris dataset.}
+      \label{fig:iris_hiddennodes_training}
+  \end{minipage}
+  \quad
+    \begin{minipage}[b]{0.45\linewidth}
+        \includegraphics[width=1.0\textwidth]{iris-hiddennodes-testing}
+    \caption{Testing set accuracy over time with different sizes of hidden layers using the iris dataset.}
+      \label{fig:iris_hiddennodes_testing}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[!ht]
+    \begin{center}
+    \end{center}
+    \caption{Testing set accuracy over time with different sizes of hidden layers using the iris dataset.}
+  \label{fig:iris_hiddennodes_testing}
 \end{figure}
 \end{document}
