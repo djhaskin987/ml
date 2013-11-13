@@ -25,6 +25,7 @@
 *.pdf
 *.txt
 *.csv
+*.png
 
 # IDE files
 nbproject/
@@ -38,4 +39,4 @@ build/
 *.blg
 *.log
 *.pdf
-*.syntex.gz
+*.synctex.gz
