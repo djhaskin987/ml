@@ -61,7 +61,7 @@ then
     for i in 1 2 3 4
     do
         build/ml -L neuralnet \
-                 -A project-data/${dataset}.arff \
+                 -A project-data/iris.arff \
                  -E random 0.7 \
                  --add-layer ${i} -l 0.05  -m 0.0 |
             sed \
@@ -103,7 +103,7 @@ then
     for i in 6 8 10 12
     do
         build/ml -L neuralnet \
-                 -A project-data/${dataset}.arff \
+                 -A project-data/vowel.arff \
                  -E random 0.75 \
                  --add-layer ${i} -l 0.01  -m 0.0 |
             sed \
@@ -135,5 +135,127 @@ set datafile separator ","
 set yrange [0:1]
 set output "${png}"
 plot '${csv}' index 0 using 1:7 with linespoints title "6 nodes", '${csv}' index 1 using 1:7 with linespoints title "8 nodes", '${csv}' index 2 using 1:7 with linespoints title "10 nodes", '${csv}' index 3 using 1:7 with linespoints title "12 nodes"
+HERE
+fi
+
+# now for the special vowel graph
+csv="vowel-special.csv"
+if [ ! -s "${csv}" ]
+then
+    build/ml -L neuralnet \
+             -A project-data/vowel.arff \
+             -E random 0.75 \
+             --add-layer 6 --add-layer 4 -l 0.01  -m 0.0 -R 1987 |
+        sed \
+            -e '/^[^"]/d' \
+            -e '/^["][^[:digit:]]/d' \
+            -e '/^["][[:digit:]]*[1-9]"/d' \
+            -e '/^[[:blank:]]*$/d' >> ${csv}
+fi
+png="vowel-special-training.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:4 with linespoints title "6:4 node net"
+HERE
+fi
+png="vowel-special-testing.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:7 with linespoints title "6:4 node net"
+HERE
+fi
+
+csv="iris-momentum.csv"
+if [ ! -s ${csv} ]
+then
+    rm -rf ${csv}
+    # get learning rate graphs
+    for i in 0.1 0.2 0.3 0.4 0.5
+    do
+        build/ml -L neuralnet \
+                 -A project-data/iris.arff \
+                 -E random 0.7 \
+                 --add-layer 3 -l 0.05  -m ${i} |
+            sed \
+                -e '/^[^"]/d' \
+                -e '/^["][^[:digit:]]/d' \
+                -e '/^["][[:digit:]]*[1-9]"/d' \
+                -e '/^[[:blank:]]*$/d' >> ${csv}
+       echo >> ${csv}
+       echo >> ${csv}
+    done
+fi
+png="iris-momentum-training.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:4 with linespoints title "0.1", '${csv}' index 1 using 1:4 with linespoints title "0.2", '${csv}' index 3 using 1:4 with linespoints title "0.3", '${csv}' index 4 using 1:4 with linespoints title "0.4", '${csv}' index 5 using 1:4 with linespoints title "0.5"
+HERE
+fi
+png="iris-momentum-testing.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:7 with linespoints title "0.1", '${csv}' index 1 using 1:7 with linespoints title "0.2", '${csv}' index 3 using 1:7 with linespoints title "0.3", '${csv}' index 4 using 1:7 with linespoints title "0.4", '${csv}' index 5 using 1:7 with linespoints title "0.5"
+HERE
+fi
+csv="vowel-momentum.csv"
+if [ ! -s ${csv} ]
+then
+    rm -rf ${csv}
+    # get learning rate graphs
+    for i in 0.1 0.2 0.3 0.4 0.5
+    do
+        build/ml -L neuralnet \
+                 -A project-data/vowel.arff \
+                 -E random 0.75 \
+                 --add-layer 10 -l 0.01 -m ${i} |
+            sed \
+                -e '/^[^"]/d' \
+                -e '/^["][^[:digit:]]/d' \
+                -e '/^["][[:digit:]]*[1-9]"/d' \
+                -e '/^[[:blank:]]*$/d' >> ${csv}
+       echo >> ${csv}
+       echo >> ${csv}
+    done
+fi
+png="vowel-momentum-training.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:4 with linespoints title "0.1", '${csv}' index 1 using 1:4 with linespoints title "0.2", '${csv}' index 3 using 1:4 with linespoints title "0.3", '${csv}' index 4 using 1:4 with linespoints title "0.4", '${csv}' index 5 using 1:4 with linespoints title "0.5"
+HERE
+fi
+png="vowel-momentum-testing.png"
+if [ ! -s "${png}" ]
+then
+    gnuplot << HERE
+set terminal pngcairo
+set datafile separator ","
+set yrange [0:1]
+set output "${png}"
+plot '${csv}' index 0 using 1:7 with linespoints title "0.1", '${csv}' index 1 using 1:7 with linespoints title "0.2", '${csv}' index 3 using 1:7 with linespoints title "0.3", '${csv}' index 4 using 1:7 with linespoints title "0.4", '${csv}' index 5 using 1:7 with linespoints title "0.5"
 HERE
 fi
