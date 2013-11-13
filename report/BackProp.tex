@@ -1,6 +1,16 @@
 \documentclass[12pt]{article}
 \usepackage{amsmath,amsfonts,amssymb,amsthm,placeins}
 \usepackage[pdftex]{graphicx}
+
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+
+\setlength{\topmargin}{0.0in}
+\setlength{\voffset}{0.0in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\hoffset}{0.0in}
+\setlength{\textwidth}{6.5in}
+\newtheorem*{thm}{Theorem}
 \pagestyle{plain}
 \title{Back Propogation Project}
 \author{Daniel Haskin}
@@ -8,17 +18,11 @@
 \maketitle
 \section{Methods}
 \subsection{Basic Implemented Functionality}
-In my implementation of the backpropogation algorithm, I implemented
-the following functionality:
-\begin{enumerate}
-    \item The neural network updates its weights incrementally
-    \item Ability to add arbitrarily large layers to the network using the
-        \texttt{--add-layer} option
-    \item Random weight initialization using a standard Gaussian distribution
-    \item Random shuffling (randomization) of the data at the beginning of each
-        training epoch.
-    \item Optional momentum term via the \texttt{-m} option.
-\end{enumerate}
+In my implementation of the backpropogation algorithm, I implemented all of the
+functionality as dictated by the specs, including incremental weight update,
+ability to create arbitrary feed-forward neural networks, random weight
+initialization, random shuffling of the data for each epoch, and optional
+momentum term.
 \subsection{Stopping Criteria}
 As to stopping criteria, I had a real problem. I tried all sorts of things
 with little success. At length and at the professor's advice I created stopping
@@ -30,8 +34,13 @@ criteria having two clauses:
 \end{enumerate}
 These stopping criteria worked much better. It turns out that even looking
 for the smallest improvement within 50 epochs, the second hard-stop clause
-was never needed in my experiements. The algorithm alwasy stopped at a
-relatively appropriate time.
+was never needed in my experiements. The algorithm always stopped at a
+relatively appropriate time before 2500 epochs were reached.
+\subsection{Input Nodes}
+I also found that binarizing the data inputs did not work as well. By having
+one neuron per input and using ordinals $\{0,1,2,3,4,...\}$ for nominal
+inputs, the neural network actually trained faster and converged more often
+given the same parameters.
 \section{Choosing a Learning Rate}
 
 As per the project specifications, I looked at several different learning rates
@@ -128,13 +137,13 @@ summarized in figures \ref{fig:vowel_special_training} and
     \centering
     \begin{minipage}[b]{0.45\linewidth}
         \includegraphics[width=1.0\textwidth]{vowel-special-training}
-        \caption{Training set acuracy over time for the vowel 4-6 experiment.}
+        \caption{Training set acuracy over time for the vowel 6-4 experiment.}
         \label{fig:vowel_special_training}
     \end{minipage}
     \quad
     \begin{minipage}[b]{0.45\linewidth}
         \includegraphics[width=1.0\textwidth]{vowel-special-testing}
-        \caption{Testing set accuracy over time for the vowel 4-6 experiment.}
+        \caption{Testing set accuracy over time for the vowel 6-4 experiment.}
         \label{fig:vowel_special_testing}
     \end{minipage}
 \end{figure}
@@ -178,5 +187,24 @@ return, although $0.4$ still worked pretty well.
         \label{fig:vowel_momentum_testing}
     \end{minipage}
 \end{figure}
-
+\section{Discussion}
+\subsection{Learning Rate}
+When the learning rates were relatively large in experiments ($ > 0.1$), The neural net algorithm did pretty terrible. However, as the learning rate got even a little smaller, the algorithm did much better. Too small, however, and the algorithm took much longer to converge.
+\subsection{Hidden Units}
+The story is similar to that of the learning rate: With every unit that was
+added in experiments, accuracy improved, up to a point. At that point, the extra
+nodes did not hurt the accuracy, but just made the algorithm take a longer time
+(wall time) to converge.
+\subsubsection{Comparison to heuristic}
+As to comparing the recorded best number of hidden nodes to the following
+hidden node heuristic, given in the specs:
+\begin{equation*}
+    H=\frac{N}{10(I+O)}
+\end{equation*}
+For the iris dataset, this equation would yield $\frac{149}{10(4+3)} \approx 2.13$, and I found that $3=\text{ceil}(2.13)$ nodes worked best, validating the heuristic.
+For the vowel dataset, this equation would yield $\frac{989}{10(11+12)} = 4.3$, but vowel did not do well until at least 8 nodes were in the hidden layer, seeming
+to invalidate the heuristic.
+\subsection{Momentum}
+With the iris dataset, it was not difficult to get perfect accuracy even without the momentum term. However, the vowel dataset struggled to get even to get into the low $0.7$'s. We will use this dataset to compare the use of no momentum terms vs. the use of momentum terms.
+Looking at figure \ref{fig:vowel_momentum_testing} and comparing it with \ref{fig:vowel_learningrate_testing}, we can see a small improvement going from no momentum to using momentum, getting strongly into the middle between $0.7$ and $0.8$ accuracy.
 \end{document}
