@@ -1,16 +1,9 @@
 #!/bin/sh
-
-
-for rate in 0.5 0.4 0.3 0.25 0.2 0.15 0.1 0.05 0.02 0.01 0.005 0.001
+for i in 0.1 0.05 0.01 0.005
 do
-    for j in 1 2 3 4 5
-    do
-        echo "Learning rate: ${rate}"
-        build/ml -L neuralnet -l ${rate} -m 0.0 -E random .7 -A project-data/iris.arff --add-layer 8 |
-                awk '
-/total epoch/ { print $0 }
-/Accuracy.*training set/ { print $0 }
-/Accuracy.*test set/ { print $0 }
-/Set accuracy/ { print $0 }'
-    done
+    echo "\"Learning Rate\",\"${i}\""
+    build/ml -L neuralnet -A project-data/iris.arff -E random 0.7 --add-layer 8 -l ${i} -m 0.0 | sed \
+        -e '/^[^"]/d' \
+        -e '/^["][[:digit:]]*[1-9]"/d' \
+        -e '/^[[:blank:]]*$/d'
 done
