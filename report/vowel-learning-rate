@@ -1,0 +1,4 @@
+#!/bin/sh
+
+build/ml -L neuralnet -A project-data/vowel.arff -E random 0.7 --add-layer 8 -l ${1} -m ${2}
+
